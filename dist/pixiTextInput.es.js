@@ -250,7 +250,7 @@ class TextInput extends Container {
 
     // for pixi v4
     renderWebGL (renderer) {
-        super.render (renderer);
+        super.renderWebGL (renderer);
         this._renderInternal (renderer);
     }
 
