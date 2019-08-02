@@ -11,7 +11,8 @@ class TextInput extends Container {
                 border : 'none',
                 outline : 'none',
                 transformOrigin : '0 0',
-                lineHeight : '1'
+                lineHeight : '1',
+                rows: 1
             },
             styles.input
         );
@@ -174,6 +175,7 @@ class TextInput extends Container {
         if (this._multiline) {
             this._dom_input = document.createElement ('textarea');
             this._dom_input.style.resize = 'none';
+            this._dom_input.rows = this._input_style.rows;
         } else {
             this._dom_input = document.createElement ('input');
             this._dom_input.type = 'text';
