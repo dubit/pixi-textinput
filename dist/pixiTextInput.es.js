@@ -194,6 +194,7 @@ class TextInput extends Container {
         this.once ('added', this._onAdded.bind (this));
         this.once ('removed', this._onRemoved.bind (this));
         this._dom_input.addEventListener ('input', this._onInputInput.bind (this));
+        this._dom_input.addEventListener ('keydown', this._onInputKeyDown.bind (this));
         this._dom_input.addEventListener ('keyup', this._onInputKeyUp.bind (this));
         this._dom_input.addEventListener ('focus', this._onFocused.bind (this));
         this._dom_input.addEventListener ('blur', this._onBlurred.bind (this));
@@ -204,6 +205,12 @@ class TextInput extends Container {
             document.body.appendChild(this._dom_input);
             this._dom_input.style.display = 'none';
             this._dom_added = true;
+        }
+
+        // Prevent scrolling and entering new lines if multiline is enabled but overflow is hidden
+        if (this._dom_input.style.multiline && this._dom_input.style.overflow == 'hidden' && e.keyCode == 13) {
+            e.preventDefault();
+            return false;
         }
 
         this._selection = [
