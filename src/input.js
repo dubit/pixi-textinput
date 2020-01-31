@@ -12,7 +12,9 @@ export class TextInput extends PIXI.Container {
                 border : 'none',
                 outline : 'none',
                 transformOrigin : '0 0',
-                lineHeight : '1'
+                lineHeight : '1',
+                rows: 1,
+                display: 'none'
             },
             styles.input
         );
@@ -164,6 +166,8 @@ export class TextInput extends PIXI.Container {
     }
 
     destroy (options) {
+        if (this._dom_input) this._dom_input.remove();
+
         this._destroyBoxCache ()
         super.destroy (options)
     }
@@ -173,11 +177,13 @@ export class TextInput extends PIXI.Container {
 
     _createDOMInput () {
         if (this._multiline) {
-            this._dom_input = document.createElement ('textarea')
-            this._dom_input.style.resize = 'none'
+            this._dom_input = document.createElement ('textarea');
+            this._dom_input.style.resize = 'none';
+            this._dom_input.rows = this._input_style.rows;
         } else {
             this._dom_input = document.createElement ('input')
-            this._dom_input.type = 'text'
+            this._dom_input.type = 'text';
+            this._dom_input.spellcheck = 'true';
         }
 
         for (let key in this._input_style) {
@@ -186,9 +192,8 @@ export class TextInput extends PIXI.Container {
     }
 
     _addListeners () {
-        this.on ('added', this._onAdded.bind (this))
-        this.on ('removed', this._onRemoved.bind (this))
-        this._dom_input.addEventListener ('keydown', this._onInputKeyDown.bind (this))
+        this.once ('added', this._onAdded.bind (this))
+        this.once ('removed', this._onRemoved.bind (this))
         this._dom_input.addEventListener ('input', this._onInputInput.bind (this))
         this._dom_input.addEventListener ('keyup', this._onInputKeyUp.bind (this))
         this._dom_input.addEventListener ('focus', this._onFocused.bind (this))
@@ -196,6 +201,12 @@ export class TextInput extends PIXI.Container {
     }
 
     _onInputKeyDown (e) {
+        if (!this._dom_added) {
+            document.body.appendChild(this._dom_input);
+            this._dom_input.style.display = 'none';
+            this._dom_added = true;
+        }
+
         this._selection = [
             this._dom_input.selectionStart,
             this._dom_input.selectionEnd
@@ -226,13 +237,16 @@ export class TextInput extends PIXI.Container {
     }
 
     _onAdded () {
-        document.body.appendChild (this._dom_input)
-        this._dom_input.style.display = 'none'
-        this._dom_added = true
+        requestAnimationFrame(() => {
+            if (!this.parent) return;
+            document.body.appendChild(this._dom_input)
+            this._dom_input.style.display = 'none'
+            this._dom_added = true
+        });
     }
 
     _onRemoved () {
-        document.body.removeChild (this._dom_input)
+        this._dom_input.remove();
         this._dom_added = false
     }
 
@@ -248,7 +262,7 @@ export class TextInput extends PIXI.Container {
 
     // for pixi v4
     renderWebGL (renderer) {
-        super.render (renderer)
+        super.renderWebGL (renderer)
         this._renderInternal (renderer)
     }
 
@@ -566,7 +580,7 @@ export class TextInput extends PIXI.Container {
         let org_transform = this._dom_input.style.transform
         let org_display = this._dom_input.style.display
         this._dom_input.style.transform = ''
-        this._dom_input.style.display = 'block'
+        this._dom_input.style.display = 'inline-block'
         let bounds = this._dom_input.getBoundingClientRect ()
         this._dom_input.style.transform = org_transform
         this._dom_input.style.display = org_display

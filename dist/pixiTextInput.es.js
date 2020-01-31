@@ -182,6 +182,7 @@ class TextInput extends Container {
         } else {
             this._dom_input = document.createElement ('input');
             this._dom_input.type = 'text';
+            this._dom_input.spellcheck = 'true';
         }
 
         for (let key in this._input_style) {
